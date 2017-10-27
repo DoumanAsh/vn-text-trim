@@ -1,0 +1,21 @@
+[package]
+publish = false
+name = "vn-text-trim"
+version = "0.1.0"
+authors = ["Douman <douman@gmx.se>"]
+
+[dependencies]
+clipboard-win = "2"
+clipboard-master = "0"
+clap = "2"
+
+[dependencies.utils]
+path = "utils/"
+
+[dependencies.config]
+path = "config/"
+
+[dependencies.text]
+path = "text/"
+
+[workspace]

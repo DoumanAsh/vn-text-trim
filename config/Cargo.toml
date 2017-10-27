@@ -1,0 +1,14 @@
+[package]
+publish = false
+name = "config"
+version = "0.1.0"
+authors = ["Douman <douman@gmx.se>"]
+
+[dependencies]
+serde = "1"
+serde_derive = "1"
+toml = "0"
+regex = "0"
+
+[dependencies.utils]
+path = "../utils/"

@@ -1,0 +1,12 @@
+[package]
+publish = false
+name = "text"
+version = "0.1.0"
+authors = ["Douman <douman@gmx.se>"]
+
+[dependencies]
+regex = "0"
+lazy_static = "0"
+
+[dependencies.config]
+path = "../config"
