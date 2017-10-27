@@ -29,7 +29,8 @@ pub fn parser() -> App<'static, 'static> {
                   .author(AUTHOR)
                   .version(VERSION)
                   .arg(flag("config").short("c")
-                                     .takes_value(true))
+                                     .takes_value(true)
+                                     .help("Path towards configuration file in TOML format. If not specified, './vn-text-trim.toml' is used."))
 }
 
 ///Retrieves configuration of Fie.

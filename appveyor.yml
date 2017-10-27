@@ -23,22 +23,13 @@ test_script:
 
 before_deploy:
   # Generate artifacts for release
-  - ps: Remove-Item -re target/
   - cargo build --release
   - mkdir staging
   - copy vn-text-trim.toml staging\
   - copy target\release\*.exe staging
-  - copy target\release\*.dll staging
-  - mkdir staging\debug
-  - copy vn-text-trim.toml staging\debug
-  - copy target\debug\*.exe staging\debug
-  - copy target\debug\*.dll staging\debug
   - cd staging
-  - 7z a ../%PROJECT_NAME%-%APPVEYOR_REPO_TAG_NAME%-%TARGET%.zip *.exe *.dll *.toml
+  - 7z a ../%PROJECT_NAME%-%APPVEYOR_REPO_TAG_NAME%-%TARGET%.zip *.exe *.toml
   - appveyor PushArtifact ../%PROJECT_NAME%-%APPVEYOR_REPO_TAG_NAME%-%TARGET%.zip
-  - cd debug/
-  - 7z a ../../%PROJECT_NAME%-%APPVEYOR_REPO_TAG_NAME%-%TARGET%-debug.zip *.exe *.dll *.toml
-  - appveyor PushArtifact ../../%PROJECT_NAME%-%APPVEYOR_REPO_TAG_NAME%-%TARGET%-debug.zip
 
 deploy:
   description: 'Windows release'
