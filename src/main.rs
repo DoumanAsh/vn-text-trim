@@ -69,8 +69,7 @@ fn run() -> Result<i32, String> {
         let clip = open_clipboard();
         let content = get_clipboard_string(&clip);
 
-        if let Some(new_text) = cleaner.extract_dialogue(&content).and_then(|text| cleaner.clean(text))
-                                                                  .or(cleaner.clean(&content)) {
+        if let Some(new_text) = cleaner.clean(&content) {
             set_clipboard_string(&clip, &new_text)
         }
 

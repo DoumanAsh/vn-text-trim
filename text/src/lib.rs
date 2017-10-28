@@ -1,5 +1,3 @@
-extern crate regex;
-
 extern crate config;
 
 #[inline(always)]
@@ -17,6 +15,7 @@ pub fn is_jp<T: AsRef<str>>(text: T) -> bool {
     })
 }
 
+#[derive(Debug)]
 pub struct Cleaner {
     config: config::Config
 }
@@ -26,12 +25,6 @@ impl Cleaner {
         Cleaner {
             config
         }
-    }
-
-    pub fn extract_dialogue<'a>(&self, text: &'a str) -> Option<&'a str> {
-        self.config.dialogue.re.captures(&text)
-                               .and_then(|caps| caps.get(1))
-                               .map(|cap| cap.as_str())
     }
 
     ///Replacer function to use, if there are replacement patterns.
@@ -62,36 +55,84 @@ impl Cleaner {
 
 #[cfg(test)]
 mod tests {
-    #[test]
-    fn extract_dialogue() {
+    fn get_cleaner() -> super::Cleaner {
         let config = super::config::Config::from_file(super::std::path::Path::new("../vn-text-trim.toml")).unwrap();
-        let cleaner = super::Cleaner::new(config);
+        super::Cleaner::new(config)
+    }
+
+    #[test]
+    fn clean_nothing() {
+        let cleaner = get_cleaner();
+
+        let text = "喫茶店の裏手にある自宅に戻ってきた俺は、食後の一休みをとっていた。";
+        let result = cleaner.clean(text);
+        assert!(result.is_none())
+    }
+
+    #[test]
+    fn clean_text1() {
+        let cleaner = get_cleaner();
 
         let text = "「甘いものは別腹と言いますから。私も見なかったこと作戦で食べちゃいます」";
         let expected_result = "甘いものは別腹と言いますから。私も見なかったこと作戦で食べちゃいます";
 
-        let result = cleaner.extract_dialogue(text).expect("To extract!");
+        let result = cleaner.clean(text).expect("To extract!");
         assert_eq!(result, expected_result);
+    }
+
+    #[test]
+    fn clean_text2() {
+        let cleaner = get_cleaner();
 
         let text = "「 甘いものは別腹と言いますから。私も見なかったこと作戦で食べちゃいます 」";
         let expected_result = "甘いものは別腹と言いますから。私も見なかったこと作戦で食べちゃいます";
 
-        let result = cleaner.extract_dialogue(text).expect("Extract dialogue with  white spaces");
+        let result = cleaner.clean(text).expect("Extract dialogue with white spaces");
         assert_eq!(result, expected_result);
+    }
+
+    #[test]
+    fn clean_text3() {
+        let cleaner = get_cleaner();
 
         let text = "「　喫茶店の裏手にある自宅に戻ってきた俺は、食後の一休みをとっていた。";
         let expected_result = "喫茶店の裏手にある自宅に戻ってきた俺は、食後の一休みをとっていた。";
 
-        let result = cleaner.extract_dialogue(text).expect("Extract partial dialogue");
+        let result = cleaner.clean(text).expect("Extract partial dialogue");
         assert_eq!(result, expected_result);
+    }
+
+    #[test]
+    fn clean_text4() {
+        let cleaner = get_cleaner();
 
         let text = "    \t 喫茶店の裏手にある自宅に戻ってきた俺は、食後の一休みをとっていた。  \n]";
         let expected_result = "喫茶店の裏手にある自宅に戻ってきた俺は、食後の一休みをとっていた。]";
         let result = cleaner.clean(text).expect("Should clean whitespace");
         assert_eq!(result, expected_result);
+    }
 
-        let text = "喫茶店の裏手にある自宅に戻ってきた俺は、食後の一休みをとっていた。";
-        let result = cleaner.clean(text);
-        assert!(result.is_none())
+    #[test]
+    fn clean_text5() {
+        let cleaner = get_cleaner();
+
+        let text = "「　青二「一真、父さんは伝説のコーヒー豆を求めて旅に出る！」";
+        let expected_result = "一真、父さんは伝説のコーヒー豆を求めて旅に出る！";
+        let result = cleaner.clean(text).expect("Should extract_dialogue");
+        assert_eq!(result, expected_result);
+    }
+
+    #[test]
+    fn clean_text6() {
+        let cleaner = get_cleaner();
+
+        //TODO: Find a way to remove repetitions.
+        //let text = "御館様の想定通り、信濃勢は御館様の想定通り、信濃勢は徹底抗戦の御館様の想定通り、信濃勢は徹底抗戦の構えを見御館様の想定通り、信濃勢は徹底抗戦の構えを見せた。";
+        //let result = cleaner.clean(text);
+
+        let text = "この麗し<color=#ffffff24>き</color>";
+        let expected_result = "この麗しき";
+        let result = cleaner.clean(text).unwrap();
+        assert_eq!(result, expected_result);
     }
 }
