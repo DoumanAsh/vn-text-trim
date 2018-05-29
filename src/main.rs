@@ -4,6 +4,9 @@ extern crate clipboard_master;
 extern crate clipboard_win;
 extern crate clap;
 
+#[macro_use(set_panic_message)]
+extern crate lazy_panic;
+
 extern crate text;
 extern crate config;
 extern crate utils;
@@ -18,8 +21,6 @@ use clipboard_win::{
     Clipboard,
     formats
 };
-
-use utils::ResultExt;
 
 mod cli;
 
@@ -55,9 +56,11 @@ fn set_clipboard_string(clip: &Clipboard, content: &str) {
     }
 }
 
-fn run() -> Result<i32, String> {
-    let args = cli::Args::new()?;
-    let cleaner = text::Cleaner::new(config::Config::from_file(&args.config)?);
+fn main() {
+    set_panic_message!(lazy_panic::formatter::JustError);
+
+    let args = cli::Args::new();
+    let cleaner = text::Cleaner::new(config::Config::from_file(&args.config).expect("Bad config file"));
 
     let ok_callback = move || {
         const RES: CallbackResult = CallbackResult::Next;
@@ -76,19 +79,5 @@ fn run() -> Result<i32, String> {
         RES
     };
 
-    Master::new(ok_callback, error_callback).run().map(|_| 0i32).map_err_to_string("Aborted.")
-}
-
-fn main() {
-    use std::process::exit;
-
-    let code: i32 = match run() {
-        Ok(res) => res,
-        Err(error) => {
-            eprintln!("{}", error);
-            1
-        }
-    };
-
-    exit(code);
+    Master::new(ok_callback, error_callback).run().expect("Aborted")
 }

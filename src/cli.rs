@@ -30,7 +30,7 @@ pub fn parser() -> App<'static, 'static> {
                   .version(VERSION)
                   .arg(flag("config").short("c")
                                      .takes_value(true)
-                                     .help("Path towards configuration file in TOML format. If not specified, './vn-text-trim.toml' is used."))
+                                     .help("Path towards configuration file in TOML format. If not specified, '<binary-dir>/vn-text-trim.toml' is used."))
 }
 
 ///Retrieves configuration of Fie.
@@ -49,14 +49,14 @@ pub struct Args {
 }
 
 impl Args {
-    pub fn new() -> Result<Self, String> {
+    pub fn new() -> Self {
         let matches = parser().get_matches();
 
         let config = matches.value_of("config").map(|config| Path::new(config).to_path_buf())
                                                .unwrap_or(default_config());
 
-        Ok(Args {
+        Args {
             config
-        })
+        }
     }
 }
