@@ -48,8 +48,30 @@ impl Cleaner {
         }
     }
 
+    pub fn remove_text_reps(&self, text: &str) -> Option<String> {
+        let chars = text.chars().collect::<Vec<_>>();
+        let mut pred = Vec::new();
+
+        for idx in 1..chars.len() {
+            pred.push(chars[idx - 1]);
+
+            if chars[idx..].starts_with(&pred) {
+                for r_idx in (1..chars.len()).rev() {
+                    if chars[r_idx..].starts_with(&pred) {
+                        return Some(chars[r_idx..].iter().fold(String::new(), |mut acc, ch| { acc.push(*ch); acc}));
+                    }
+                }
+            }
+        }
+
+        None
+    }
+
     pub fn clean(&self, text: &str) -> Option<String> {
-        self.replace(text)
+        match self.config.text_repetitions {
+            true => self.replace(text).map(|text| self.remove_text_reps(&text).unwrap_or(text)).or_else(|| self.remove_text_reps(text)),
+            false => self.replace(text)
+        }
     }
 }
 
@@ -127,8 +149,9 @@ mod tests {
         let cleaner = get_cleaner();
 
         //TODO: Find a way to remove repetitions.
-        //let text = "御館様の想定通り、信濃勢は御館様の想定通り、信濃勢は徹底抗戦の御館様の想定通り、信濃勢は徹底抗戦の構えを見御館様の想定通り、信濃勢は徹底抗戦の構えを見せた。";
-        //let result = cleaner.clean(text);
+        let text = "御館様の想定通り、信濃勢は御館様の想定通り、信濃勢は徹底抗戦の御館様の想定通り、信濃勢は徹底抗戦の構えを見御館様の想定通り、信濃勢は徹底抗戦の構えを見せた。";
+        let result = cleaner.clean(text).unwrap();
+        println!("{}", result);
 
         let text = "この麗し<color=#ffffff24>き</color>";
         let expected_result = "この麗しき";

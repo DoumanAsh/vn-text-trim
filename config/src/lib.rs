@@ -36,6 +36,8 @@ pub struct Replace {
 ///Configuration of application
 pub struct Config {
     #[serde(default)]
+    pub text_repetitions: bool,
+    #[serde(default)]
     pub replace: Option<Vec<Replace>>
 }
 

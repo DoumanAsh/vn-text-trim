@@ -1,5 +1,8 @@
 #Regex syntax reference https://doc.rust-lang.org/regex/regex/index.html#syntax
 
+## Whether look for text repetitions
+text_repetitions = true
+
 ## Replacement patterns
 ##
 ## All instances of $name in the replacement text is replaced with the corresponding capture group
