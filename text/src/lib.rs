@@ -48,6 +48,12 @@ impl Cleaner {
         }
     }
 
+    ///Removing text repetitions in a way suitable to Sengoku Hime 7
+    ///
+    ///We start going from the beggining until we meet substring repetition
+    ///Then we go from th end  unti we find substring repetition.
+    ///If we found it, then we return the slice from the beggining of repetition until the end
+    ///Otherwise continue on until we fail or find it
     pub fn remove_text_reps(&self, text: &str) -> Option<String> {
         let chars = text.chars().collect::<Vec<_>>();
         let mut pred = Vec::new();
@@ -55,8 +61,8 @@ impl Cleaner {
         for idx in 1..chars.len() {
             pred.push(chars[idx - 1]);
 
-            if chars[idx..].starts_with(&pred) {
-                for r_idx in (1..chars.len()).rev() {
+            if pred.len() > 2 && chars[idx..].starts_with(&pred) {
+                for r_idx in (1..chars.len()).rev().skip_while(|r_idx| (chars.len() - r_idx) < pred.len()) {
                     if chars[r_idx..].starts_with(&pred) {
                         return Some(chars[r_idx..].iter().fold(String::new(), |mut acc, ch| { acc.push(*ch); acc}));
                     }
@@ -148,14 +154,35 @@ mod tests {
     fn clean_text6() {
         let cleaner = get_cleaner();
 
-        //TODO: Find a way to remove repetitions.
         let text = "御館様の想定通り、信濃勢は御館様の想定通り、信濃勢は徹底抗戦の御館様の想定通り、信濃勢は徹底抗戦の構えを見御館様の想定通り、信濃勢は徹底抗戦の構えを見せた。";
+        let expected_result = "御館様の想定通り、信濃勢は徹底抗戦の構えを見せた。";
         let result = cleaner.clean(text).unwrap();
-        println!("{}", result);
+        assert_eq!(result, expected_result);
 
         let text = "この麗し<color=#ffffff24>き</color>";
         let expected_result = "この麗しき";
         let result = cleaner.clean(text).unwrap();
         assert_eq!(result, expected_result);
+    }
+
+    #[test]
+    fn clean_text7() {
+        let cleaner = get_cleaner();
+
+        let text = "「ああ、構わない。保冷バッグもあるからアイスも買おう」「ああ、構わない。保冷バッグもあるからアイスも買おう」";
+        let expected_result = "ああ、構わない。保冷バッグもあるからアイスも買おう";
+        let result = cleaner.clean(text).unwrap();
+        assert_eq!(result, expected_result);
+    }
+
+    #[test]
+    fn clean_rep_text() {
+        let cleaner = get_cleaner();
+
+        let text = "来て直ぐ、少し早い時間だったが昼ご飯の用意をすることにする。来て直ぐ、少し早い時間だったが昼ご飯の用意をすることにする。来て直ぐ、少し早い時間だったが昼ご飯の用意をすることにする。来て直ぐ、少し早い時間だったが昼ご飯の用意をすることにする。";
+        let expected_result = "来て直ぐ、少し早い時間だったが昼ご飯の用意をすることにする。";
+        let result = cleaner.clean(text).unwrap();
+        assert_eq!(result, expected_result);
+
     }
 }
