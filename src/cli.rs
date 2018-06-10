@@ -1,4 +1,6 @@
-use ::clap::{App, Arg};
+extern crate clap;
+
+use self::clap::{App, Arg};
 
 use ::std::env;
 use ::std::path::{

@@ -1,12 +1,14 @@
 [package]
 publish = false
 name = "vn-text-trim"
-version = "0.3.1"
+version = "0.3.2"
 authors = ["Douman <douman@gmx.se>"]
 
 [dependencies]
 clipboard-win = "2"
 clipboard-master = "0"
+windows-win = "2"
+winapi = "0.3"
 clap = "2"
 lazy_static = "1"
 lazy-panic = "0.3"
